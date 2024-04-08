@@ -21,7 +21,7 @@ const getAPI = (str: string): Promise<ObjectInterface[]> => {
 enum SortTypes {
   None = 'None',
   Normal = 'Normal',
-  Reverced = 'Reverced'
+  Reversed = 'Reversed'
 }
 
 function App() {
@@ -50,7 +50,7 @@ const Table: FC<TableProps> = ({ users }) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   //None не сортируем
   //Normal деф сортировка
-  //Reverced обратная сортировка
+  //Reversed обратная сортировка
 
 
   
@@ -58,14 +58,14 @@ const Table: FC<TableProps> = ({ users }) => {
   // Ивент сортировки. Записываем данные для сортировки и инициируем ререндер
   function handleSortClick(value: string) {
     const valueID = userColumns.indexOf(value)
-    if (valueID === sortColumn && sortType === SortTypes.Reverced) {
+    if (valueID === sortColumn && sortType === SortTypes.Reversed) {
       setSortType(SortTypes.None); 
     } 
     else if (valueID === sortColumn && sortType === SortTypes.None) {
       setSortType(SortTypes.Normal);
     }
     else if (valueID === sortColumn) {
-      setSortType(SortTypes.Reverced)
+      setSortType(SortTypes.Reversed)
     }
     else {
       setSortColumn(valueID);
@@ -100,7 +100,7 @@ const Table: FC<TableProps> = ({ users }) => {
         return -1;
       } else { return 1; }
     }
-    if (sortType !== SortTypes.Reverced) {
+    if (sortType !== SortTypes.Reversed) {
       return data();
     } else { return (data() * -1) }
   }
@@ -109,7 +109,7 @@ const Table: FC<TableProps> = ({ users }) => {
   const Strings = (key: string) => {
     if (key === userColumns[sortColumn]) {
       if (sortType === SortTypes.Normal) { return ` ${key}▼`; }
-      else if (sortType === SortTypes.Reverced) {
+      else if (sortType === SortTypes.Reversed) {
         return ` ${key}▲`;
       }
     }
