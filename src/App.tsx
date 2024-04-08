@@ -1,4 +1,4 @@
-import { useState, useEffect, FC, useRef } from 'react'
+import { useState, useEffect, FC } from 'react'
 
 import './App.css'
 
@@ -16,6 +16,12 @@ const getAPI = (str: string): Promise<ObjectInterface[]> => {
     .catch((err) => {
       console.error("error:" + err);
     });
+}
+
+enum SortTypes {
+  None = 'None',
+  Normal = 'Normal',
+  Reverced = 'Reverced'
 }
 
 function App() {
@@ -38,47 +44,43 @@ interface TableProps {
 }
 //Таблица
 const Table: FC<TableProps> = ({ users }) => {
-  const sortColumn = useRef<number>(0);
-  const [sortType, setSortType] = useState<number>(0);
+  //const sortColumn = useRef<number>(0);
+  const [sortColumn, setSortColumn] = useState<number>(0);
+  const [sortType, setSortType] = useState<SortTypes>(SortTypes.None);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [refresh, setRefresh] = useState<boolean>(false);
-  //0 не сортируем
-  //1 деф сортировка
-  //2 обратная сортировка
+  //None не сортируем
+  //Normal деф сортировка
+  //Reverced обратная сортировка
 
-  // Обновляем страницу
-  function needRefresh() {
-    setRefresh((prev) => !prev);
-  }
+
+  
 
   // Ивент сортировки. Записываем данные для сортировки и инициируем ререндер
   function handleSortClick(value: string) {
     const valueID = userColumns.indexOf(value)
-    if (valueID === sortColumn.current) {
-      if (sortType === 2) {
-        setSortType(0);
-      } else {
-        setSortType(((prev) => prev + 1));
-      }
-    } else {
-      sortColumn.current = valueID;
-      if (sortType === 1) {
-        needRefresh();
-      } else { setSortType(1); }
+    if (valueID === sortColumn && sortType === SortTypes.Reverced) {
+      setSortType(SortTypes.None); 
+    } 
+    else if (valueID === sortColumn && sortType === SortTypes.None) {
+      setSortType(SortTypes.Normal);
     }
-
+    else if (valueID === sortColumn) {
+      setSortType(SortTypes.Reverced)
+    }
+    else {
+      setSortColumn(valueID);
+      setSortType(SortTypes.Normal); }
   }
-  //Не получили дату
+  
   if (users.length === 0) {
     return <p>Данных нет</p>
   }
   //Получили дату
   const userColumns = Object.keys(users[0]);
 
-
   // Сортировка 
   const sorted = users.sort(function (a, b) {
-    const column: string = sortType !== 0 ? userColumns[sortColumn.current]: 'id';
+    const column: string = sortType !== SortTypes.None ? userColumns[sortColumn]: 'id';
     if (a.password.length < 8 && b.password.length < 8) {
       return sortTable(a, b, column);
     }
@@ -98,16 +100,16 @@ const Table: FC<TableProps> = ({ users }) => {
         return -1;
       } else { return 1; }
     }
-    if (sortType !== 2) {
+    if (sortType !== SortTypes.Reverced) {
       return data();
     } else { return (data() * -1) }
   }
 
   //Вычисляем названия столбцов в зависимости от фильтров поиска
   const Strings = (key: string) => {
-    if (key === userColumns[sortColumn.current]) {
-      if (sortType === 1) { return ` ${key}▼`; }
-      else if (sortType === 2) {
+    if (key === userColumns[sortColumn]) {
+      if (sortType === SortTypes.Normal) { return ` ${key}▼`; }
+      else if (sortType === SortTypes.Reverced) {
         return ` ${key}▲`;
       }
     }
